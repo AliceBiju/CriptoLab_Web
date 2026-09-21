@@ -11,7 +11,6 @@
 > **Curso:** Tecnologia em Análise e Desenvolvimento de Sistemas — **IFSP - Campus Jacareí**  
 > **Docente:** Prof. Tardelli Stekel  
 > **Integrantes da Equipe:** Alice Santos Monteiro de Barros, Felipe Rinaldi Sobreira e Nathan Henrique Guimarães de Oliveira  
-> **Prazos:** Envio via Moodle até 28/09/2026 | Apresentação em sala em 29/09/2026
 
 ---
 
