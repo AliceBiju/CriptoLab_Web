@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CriptoLab Web | Segurança de Sistemas - IFSP Jacareí</title>
+    <!-- Fontes Google Inter e JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+    <!-- Cabeçalho Principal -->
+    <header class="app-header">
+        <div class="brand-container">
+            <div class="brand-icon">CL</div>
+            <div class="brand-text">
+                <h1>CriptoLab Web</h1>
+            </div>
+        </div>
+        <div class="header-authors">
+            <span class="authors-label">Feito pelos alunos:</span>
+            <span class="authors-names">Alice Santos Monteiro de Barros, Felipe Rinaldi Sobreira e ...</span>
+        </div>
+    </header>
+
+    <!-- Barra de Navegação por Abas -->
+    <nav class="nav-tabs">
+        <button class="tab-btn active" data-tab="tab-otp">One Time Pad (OTP)</button>
+        <button class="tab-btn" data-tab="tab-caesar">Cifra de César</button>
+        <button class="tab-btn" data-tab="tab-vigenere">Cifra de Vigenère</button>
+        <button class="tab-btn" data-tab="tab-hill">Cifra de Hill</button>
+        <button class="tab-btn" data-tab="tab-crypto">Módulo Livre: Criptoanálise</button>
+        <button class="tab-btn" data-tab="tab-about">Sobre o Projeto</button>
+    </nav>
+
+    <!-- Conteúdo Principal -->
+    <main class="main-content">
+
+        <!-- ============================================================= -->
+        <!-- ABA 1: ONE TIME PAD (OTP) -->
+        <!-- ============================================================= -->
+        <section id="tab-otp" class="tab-pane active">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>One Time Pad (OTP)</h2>
+                    <p>Criptografia baseada em função XOR com entrada e saída no sistema <strong>decimal (base 10)</strong>.</p>
+                </div>
+                <div class="preset-chips-container">
+                    <span class="chips-label">Exemplos:</span>
+                    <button class="chip" onclick="loadPreset('otp', 0)">42 e 77</button>
+                    <button class="chip" onclick="loadPreset('otp', 1)">Vetor 'OLA'</button>
+                    <button class="chip" onclick="loadPreset('otp', 2)">12345 e 54321</button>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Coluna da Esquerda: Configuração e Entrada -->
+                <div class="card">
+                    <div class="segmented-control">
+                        <button id="otp-seg-enc" class="seg-btn active" onclick="switchMode('otp', 'enc')">Criptografar</button>
+                        <button id="otp-seg-dec" class="seg-btn" onclick="switchMode('otp', 'dec')">Decriptografar</button>
+                    </div>
+
+                    <!-- Formulário de Cifra OTP -->
+                    <div id="otp-form-enc">
+                        <div class="form-group">
+                            <label class="form-label" for="otp-msg-input">
+                                <span>Mensagem Clara (Base 10 / Decimal)</span>
+                                <span class="label-hint">Ex: 42 ou vetor: 79, 76, 65</span>
+                            </label>
+                            <input type="text" id="otp-msg-input" class="input-text input-mono" value="42" placeholder="Ex: 42">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="otp-key-input">
+                                <span>Chave Secreta (Base 10 / Decimal)</span>
+                                <span class="label-hint">Tamanho igual ou superior</span>
+                            </label>
+                            <input type="text" id="otp-key-input" class="input-text input-mono" value="77" placeholder="Ex: 77">
+                        </div>
+
+                        <button id="otp-enc-btn" class="btn-primary">Executar Criptografia OTP</button>
+                    </div>
+
+                    <!-- Formulário de Decriptação OTP -->
+                    <div id="otp-form-dec" style="display:none;">
+                        <div class="form-group">
+                            <label class="form-label" for="otp-dec-msg-input">
+                                <span>Texto Cifrado (Base 10 / Decimal)</span>
+                                <span class="label-hint">Ex: 103</span>
+                            </label>
+                            <input type="text" id="otp-dec-msg-input" class="input-text input-mono" value="103" placeholder="Ex: 103">
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="otp-dec-key-input">
+                                <span>Chave Secreta (Base 10 / Decimal)</span>
+                                <span class="label-hint">Mesma chave da cifra</span>
+                            </label>
+                            <input type="text" id="otp-dec-key-input" class="input-text input-mono" value="77" placeholder="Ex: 77">
+                        </div>
+
+                        <button id="otp-dec-btn" class="btn-secondary">Executar Decriptação OTP</button>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Resultado e Passo a Passo -->
+                <div class="result-card">
+                    <div class="result-banner">
+                        <div class="result-banner-header">
+                            <span id="otp-result-label" class="result-label">Resultado Criptografado (Base 10)</span>
+                            <div class="result-actions">
+                                <button class="btn-icon-text" onclick="copyToClipboard('otp-active-output', this)">Copiar</button>
+                                <button id="otp-swap-btn" class="btn-icon-text" onclick="swapOtpData()">Inverter Modo</button>
+                            </div>
+                        </div>
+                        <div id="otp-active-output" class="result-value">103</div>
+                    </div>
+
+                    <details class="steps-details" open>
+                        <summary class="steps-summary">
+                            <span>Demonstração Passo a Passo (Decimal para Binário e XOR)</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Expandir / Recolher</span>
+                        </summary>
+                        <div id="otp-active-steps" class="steps-content"></div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- ABA 2: CIFRA DE CÉSAR -->
+        <!-- ============================================================= -->
+        <section id="tab-caesar" class="tab-pane">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>Cifra de César Generalizada</h2>
+                    <p>Substituição monoalfabética com deslocamento K qualquer (suporta valores negativos e K mod 26).</p>
+                </div>
+                <div class="preset-chips-container">
+                    <span class="chips-label">Exemplos:</span>
+                    <button class="chip" onclick="loadPreset('caesar', 0)">K = 3 (Histórico)</button>
+                    <button class="chip" onclick="loadPreset('caesar', 1)">K = 17 (Segurança)</button>
+                    <button class="chip" onclick="loadPreset('caesar', 2)">K = 55 (K mod 26)</button>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Coluna da Esquerda: Entrada -->
+                <div class="card">
+                    <div class="segmented-control">
+                        <button id="caesar-seg-enc" class="seg-btn active" onclick="switchMode('caesar', 'enc')">Criptografar</button>
+                        <button id="caesar-seg-dec" class="seg-btn" onclick="switchMode('caesar', 'dec')">Decriptografar</button>
+                    </div>
+
+                    <!-- Formulário Cifra César -->
+                    <div id="caesar-form-enc">
+                        <div class="form-group">
+                            <label class="form-label" for="caesar-msg-input">Mensagem Clara (Palavra ou Frase)</label>
+                            <textarea id="caesar-msg-input" class="textarea-text" placeholder="Digite sua mensagem...">ATACAR AO AMANHECER</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="caesar-key-input">
+                                <span>Chave de Deslocamento K</span>
+                                <span class="label-hint">Qualquer número inteiro</span>
+                            </label>
+                            <input type="number" id="caesar-key-input" class="input-text input-mono" value="3">
+                        </div>
+
+                        <button id="caesar-enc-btn" class="btn-primary">Criptografar com César</button>
+                    </div>
+
+                    <!-- Formulário Decriptação César -->
+                    <div id="caesar-form-dec" style="display:none;">
+                        <div class="form-group">
+                            <label class="form-label" for="caesar-dec-msg-input">Texto Cifrado</label>
+                            <textarea id="caesar-dec-msg-input" class="textarea-text" placeholder="Texto cifrado...">DWDFDU DR DPDQKHFHU</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="caesar-dec-key-input">Chave de Deslocamento K</label>
+                            <input type="number" id="caesar-dec-key-input" class="input-text input-mono" value="3">
+                        </div>
+
+                        <button id="caesar-dec-btn" class="btn-secondary">Decriptografar com César</button>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Resultado -->
+                <div class="result-card">
+                    <div class="result-banner">
+                        <div class="result-banner-header">
+                            <span id="caesar-result-label" class="result-label">Texto Cifrado Resultante</span>
+                            <div class="result-actions">
+                                <button class="btn-icon-text" onclick="copyToClipboard('caesar-active-output', this)">Copiar</button>
+                                <button id="caesar-swap-btn" class="btn-icon-text" onclick="swapCaesarData()">Inverter Modo</button>
+                            </div>
+                        </div>
+                        <div id="caesar-active-output" class="result-value">DWDFDU DR DPDQKHFHU</div>
+                    </div>
+
+                    <details class="steps-details" open>
+                        <summary class="steps-summary">
+                            <span>Mapeamento dos Caracteres e Aritmética Modular</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Expandir / Recolher</span>
+                        </summary>
+                        <div id="caesar-active-steps" class="steps-content"></div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- ABA 3: CIFRA DE VIGENÈRE -->
+        <!-- ============================================================= -->
+        <section id="tab-vigenere" class="tab-pane">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>Cifra de Vigenère</h2>
+                    <p>Substituição polialfabética. Requer mensagem com <strong>no mínimo 4 palavras</strong> e repete a chave ciclicamente.</p>
+                </div>
+                <div class="preset-chips-container">
+                    <span class="chips-label">Exemplos:</span>
+                    <button class="chip" onclick="loadPreset('vigenere', 0)">Segurança Info (5 palavras)</button>
+                    <button class="chip" onclick="loadPreset('vigenere', 1)">Chave 'TEMA AULA'</button>
+                    <button class="chip" onclick="loadPreset('vigenere', 2)">Caso Histórico 'LEMON'</button>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Coluna da Esquerda: Entrada -->
+                <div class="card">
+                    <div class="segmented-control">
+                        <button id="vig-seg-enc" class="seg-btn active" onclick="switchMode('vig', 'enc')">Criptografar</button>
+                        <button id="vig-seg-dec" class="seg-btn" onclick="switchMode('vig', 'dec')">Decriptografar</button>
+                    </div>
+
+                    <!-- Formulário Cifra Vigenère -->
+                    <div id="vig-form-enc">
+                        <div class="form-group">
+                            <div class="form-label">
+                                <label for="vig-msg-input">Mensagem (Mínimo de 4 palavras)</label>
+                                <span id="vig-word-badge" class="word-counter-badge word-count-valid">5 palavra(s)</span>
+                            </div>
+                            <textarea id="vig-msg-input" class="textarea-text" placeholder="Digite uma frase com no mínimo 4 palavras...">A SEGURANCA DA INFORMACAO E ESSENCIAL</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="vig-key-input">Chave (Palavra ou Frase)</label>
+                            <input type="text" id="vig-key-input" class="input-text input-mono" value="SECRETO" placeholder="Ex: SECRETO">
+                        </div>
+
+                        <button id="vig-enc-btn" class="btn-primary">Criptografar com Vigenère</button>
+                    </div>
+
+                    <!-- Formulário Decriptação Vigenère -->
+                    <div id="vig-form-dec" style="display:none;">
+                        <div class="form-group">
+                            <label class="form-label" for="vig-dec-msg-input">Texto Cifrado</label>
+                            <textarea id="vig-dec-msg-input" class="textarea-text" placeholder="Texto cifrado...">S WIJZVSGCS HE ARJGTCGUR I WUKWQUBCP</textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="vig-dec-key-input">Chave (Palavra ou Frase)</label>
+                            <input type="text" id="vig-dec-key-input" class="input-text input-mono" value="SECRETO">
+                        </div>
+
+                        <button id="vig-dec-btn" class="btn-secondary">Decriptografar com Vigenère</button>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Resultado -->
+                <div class="result-card">
+                    <div class="result-banner">
+                        <div class="result-banner-header">
+                            <span id="vig-result-label" class="result-label">Texto Cifrado Resultante</span>
+                            <div class="result-actions">
+                                <button class="btn-icon-text" onclick="copyToClipboard('vig-active-output', this)">Copiar</button>
+                                <button id="vig-swap-btn" class="btn-icon-text" onclick="swapVigData()">Inverter Modo</button>
+                            </div>
+                        </div>
+                        <div id="vig-active-output" class="result-value">S WIJZVSGCS HE ARJGTCGUR I WUKWQUBCP</div>
+                    </div>
+
+                    <details class="steps-details" open>
+                        <summary class="steps-summary">
+                            <span>Expansão de Chave e Deslocamentos Passo a Passo</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Expandir / Recolher</span>
+                        </summary>
+                        <div id="vig-active-steps" class="steps-content"></div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- ABA 4: CIFRA DE HILL -->
+        <!-- ============================================================= -->
+        <section id="tab-hill" class="tab-pane">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>Cifra de Hill</h2>
+                    <p>Substituição poligráfica via matrizes mod 26. Invertibilidade garantida por Algoritmo Euclidiano Estendido.</p>
+                </div>
+                <div class="preset-chips-container">
+                    <span class="chips-label">Exemplos:</span>
+                    <button class="chip" onclick="loadPreset('hill', 0)">Matriz [[3,3],[2,5]]</button>
+                    <button class="chip" onclick="loadPreset('hill', 1)">Palavra 'HILL'</button>
+                    <button class="chip" onclick="loadPreset('hill', 2)">Matriz [[5,8],[17,3]]</button>
+                </div>
+            </div>
+
+            <div class="workspace-grid">
+                <!-- Coluna da Esquerda: Configuração e Entrada -->
+                <div class="card">
+                    <!-- Configuração da Matriz -->
+                    <div style="margin-bottom:1.1rem; padding-bottom:1rem; border-bottom:1px solid var(--border-subtle);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                            <span style="font-size:0.84rem; font-weight:600; color:var(--text-primary);">Matriz da Chave K (2x2)</span>
+                            <span id="hill-matrix-status"></span>
+                        </div>
+
+                        <div style="display:flex; gap:1rem; align-items:center;">
+                            <div class="matrix-brackets">
+                                <span class="matrix-bracket-left">[</span>
+                                <div class="matrix-grid matrix-grid-2x2">
+                                    <input type="number" id="hill-m00" class="matrix-cell" value="3" title="Linha 0, Coluna 0">
+                                    <input type="number" id="hill-m01" class="matrix-cell" value="3" title="Linha 0, Coluna 1">
+                                    <input type="number" id="hill-m10" class="matrix-cell" value="2" title="Linha 1, Coluna 0">
+                                    <input type="number" id="hill-m11" class="matrix-cell" value="5" title="Linha 1, Coluna 1">
+                                </div>
+                                <span class="matrix-bracket-right">]</span>
+                            </div>
+
+                            <div style="flex:1;">
+                                <label class="form-label" for="hill-key-word" style="margin-bottom:0.2rem;">Ou Palavra-Chave:</label>
+                                <input type="text" id="hill-key-word" class="input-text input-mono" value="HILL" maxlength="4" placeholder="Ex: HILL" style="padding:0.45rem 0.6rem; font-size:0.85rem;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="segmented-control">
+                        <button id="hill-seg-enc" class="seg-btn active" onclick="switchMode('hill', 'enc')">Criptografar</button>
+                        <button id="hill-seg-dec" class="seg-btn" onclick="switchMode('hill', 'dec')">Decriptografar</button>
+                    </div>
+
+                    <!-- Formulário Cifra Hill -->
+                    <div id="hill-form-enc">
+                        <div class="form-group">
+                            <label class="form-label" for="hill-msg-input">
+                                <span>Mensagem Clara</span>
+                                <span class="label-hint">Padding 'X' automático se ímpar</span>
+                            </label>
+                            <input type="text" id="hill-msg-input" class="input-text input-mono" value="HELP" placeholder="Ex: HELP">
+                        </div>
+
+                        <button id="hill-enc-btn" class="btn-primary">Criptografar com Hill</button>
+                    </div>
+
+                    <!-- Formulário Decriptação Hill -->
+                    <div id="hill-form-dec" style="display:none;">
+                        <div class="form-group">
+                            <label class="form-label" for="hill-dec-msg-input">Texto Cifrado</label>
+                            <input type="text" id="hill-dec-msg-input" class="input-text input-mono" value="HIAT" placeholder="Ex: HIAT">
+                        </div>
+
+                        <button id="hill-dec-btn" class="btn-secondary">Decriptografar com Hill</button>
+                    </div>
+                </div>
+
+                <!-- Coluna da Direita: Resultado e Multiplicações -->
+                <div class="result-card">
+                    <div class="result-banner">
+                        <div class="result-banner-header">
+                            <span id="hill-result-label" class="result-label">Texto Cifrado Resultante</span>
+                            <div class="result-actions">
+                                <button class="btn-icon-text" onclick="copyToClipboard('hill-active-output', this)">Copiar</button>
+                                <button id="hill-swap-btn" class="btn-icon-text" onclick="swapHillData()">Inverter Modo</button>
+                            </div>
+                        </div>
+                        <div id="hill-active-output" class="result-value">HIAT</div>
+                    </div>
+
+                    <details class="steps-details" open>
+                        <summary class="steps-summary">
+                            <span>Álgebra Linear Modular e Multiplicações Matriciais</span>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Expandir / Recolher</span>
+                        </summary>
+                        <div id="hill-active-steps" class="steps-content"></div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- ABA 5: MÓDULO LIVRE - CRIPTOANÁLISE -->
+        <!-- ============================================================= -->
+        <section id="tab-crypto" class="tab-pane">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>Módulo Livre: Criptoanálise</h2>
+                    <p>Demonstrações de quebra por força bruta estatística (Opção A) e reutilização de chave OTP (Opção B).</p>
+                </div>
+                <div class="segmented-control" style="max-width:440px; margin-bottom:0;">
+                    <button id="subtab-crypto-a" class="seg-btn active" onclick="switchCryptoOption('a')">Opção A: Força Bruta César</button>
+                    <button id="subtab-crypto-b" class="seg-btn" onclick="switchCryptoOption('b')">Opção B: Two-Time Pad</button>
+                </div>
+            </div>
+
+            <!-- Painel Opção A: Força Bruta César -->
+            <div id="crypto-pane-a">
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                        <span style="font-size:0.88rem; font-weight:600; color:var(--text-primary);">Ataque de Força Bruta com Análise de Frequência em Português</span>
+                        <div class="preset-chips-container">
+                            <button class="chip" onclick="loadPreset('cryptanalysis', 0)">Texto Desconhecido</button>
+                            <button class="chip" onclick="loadPreset('cryptanalysis', 1)">Provérbio Cifrado</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="brute-input">Texto Cifrado (sem chave):</label>
+                        <textarea id="brute-input" class="textarea-text" placeholder="Cole o texto cifrado...">LZAH L BTH TLUZHNLT ZLJYLAH LT WVYABNBLZ WHYH ALZAHY H MYLXBLUJPH</textarea>
+                    </div>
+
+                    <button id="brute-btn" class="btn-primary">Testar Todas as 25 Chaves e Sugerir Texto Claro</button>
+                </div>
+
+                <div id="brute-best-box"></div>
+                <div id="brute-results-container"></div>
+            </div>
+
+            <!-- Painel Opção B: Two-Time Pad -->
+            <div id="crypto-pane-b" style="display:none;">
+                <div class="card" style="margin-bottom:1.5rem;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.75rem;">
+                        <span style="font-size:0.88rem; font-weight:600; color:var(--text-primary);">Vulnerabilidade de Reutilização de Chave (Two-Time Pad)</span>
+                        <div class="preset-chips-container">
+                            <button class="chip" onclick="loadPreset('twoTimePad', 0)">Exemplo 103 e 46</button>
+                            <button class="chip" onclick="loadPreset('twoTimePad', 1)">Blocos de Texto</button>
+                        </div>
+                    </div>
+
+                    <p style="color:var(--text-secondary); font-size:0.84rem; margin-bottom:1rem;">
+                        Quando duas mensagens são cifradas com a mesma chave: C1 = M1 XOR K e C2 = M2 XOR K.
+                        Ao calcular C1 XOR C2, a chave K é completamente cancelada, expondo M1 XOR M2.
+                    </p>
+
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="ttp-c1-input">Cifrado C1 (Decimal ou Texto)</label>
+                            <input type="text" id="ttp-c1-input" class="input-text input-mono" value="103">
+                        </div>
+                        <div class="form-group" style="margin-bottom:0;">
+                            <label class="form-label" for="ttp-c2-input">Cifrado C2 (Mesma Chave)</label>
+                            <input type="text" id="ttp-c2-input" class="input-text input-mono" value="46">
+                        </div>
+                    </div>
+
+                    <button id="ttp-btn" class="btn-primary">Calcular C1 XOR C2 e Provar Eliminação da Chave</button>
+                </div>
+
+                <div id="ttp-result-box"></div>
+            </div>
+        </section>
+
+        <!-- ============================================================= -->
+        <!-- ABA 6: SOBRE O PROJETO -->
+        <!-- ============================================================= -->
+        <section id="tab-about" class="tab-pane">
+            <div class="view-header">
+                <div class="view-title">
+                    <h2>Sobre o Projeto e Integrantes</h2>
+                    <p>Dados acadêmicos e síntese conceitual para a avaliação em sala de aula.</p>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <h3>Integrantes da Equipe</h3>
+                <div class="team-list">
+                    <div class="team-member-card">
+                        <div class="avatar">AS</div>
+                        <div>
+                            <strong>Alice Santos Monteiro de Barros</strong>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="avatar">FR</div>
+                        <div>
+                            <strong>Felipe Rinaldi Sobreira</strong>
+                        </div>
+                    </div>
+                    <div class="team-member-card">
+                        <div class="avatar">...</div>
+                        <div>
+                            <strong>Terceiro Integrante</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <h3 style="margin-top:1.75rem;">Dados Acadêmicos</h3>
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:1rem; margin-top:0.75rem;">
+                    <div style="background:#0c0d14; padding:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                        <strong style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Instituição</strong>
+                        <p style="font-size:0.95rem; font-weight:600; margin-top:0.2rem;">IFSP - Campus Jacareí</p>
+                    </div>
+                    <div style="background:#0c0d14; padding:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                        <strong style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Curso</strong>
+                        <p style="font-size:0.95rem; font-weight:600; margin-top:0.2rem;">Tecnologia em ADS</p>
+                    </div>
+                    <div style="background:#0c0d14; padding:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                        <strong style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Disciplina</strong>
+                        <p style="font-size:0.95rem; font-weight:600; margin-top:0.2rem;">Segurança de Sistemas – JCRSEGS</p>
+                    </div>
+                    <div style="background:#0c0d14; padding:0.9rem; border-radius:var(--radius-sm); border:1px solid var(--border-subtle);">
+                        <strong style="color:var(--text-muted); font-size:0.75rem; text-transform:uppercase;">Professor Responsável</strong>
+                        <p style="font-size:0.95rem; font-weight:600; margin-top:0.2rem;">Prof. Tardelli Stekel</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="doc-card">
+                <h3>Síntese Teórica dos Algoritmos</h3>
+                <div style="display:flex; flex-direction:column; gap:0.75rem; margin-top:0.75rem;">
+                    <div class="step-card">
+                        <h4 style="color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;">1. One Time Pad (OTP)</h4>
+                        <p style="font-size:0.85rem; color:var(--text-secondary);">
+                            Involutivo e inquebrável (Shannon, 1949) sob uso único com chave de mesmo comprimento. Operação bit a bit baseada em A XOR B XOR B = A.
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4 style="color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;">2. Cifra de César Generalizada</h4>
+                        <p style="font-size:0.85rem; color:var(--text-secondary);">
+                            Substituição monoalfabética mapeada em Z_26 como C = (P + K) mod 26.
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4 style="color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;">3. Cifra de Vigenère</h4>
+                        <p style="font-size:0.85rem; color:var(--text-secondary);">
+                            Substituição polialfabética que utiliza múltiplos alfabetos de César alternados periodicamente por uma chave.
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4 style="color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;">4. Cifra de Hill</h4>
+                        <p style="font-size:0.85rem; color:var(--text-secondary);">
+                            Substituição poligráfica em blocos via multiplicação de matrizes mod 26. Invertibilidade resolvida via Algoritmo Euclidiano Estendido.
+                        </p>
+                    </div>
+                    <div class="step-card">
+                        <h4 style="color:var(--primary); font-size:0.92rem; margin-bottom:0.25rem;">5. Criptoanálise</h4>
+                        <p style="font-size:0.85rem; color:var(--text-secondary);">
+                            Ataque de força bruta com Qui-Quadrado para identificar o texto claro em português e prova prática da perda de sigilo no Two-Time Pad.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Rodapé -->
+    <footer class="app-footer">
+        <p>Desenvolvido para a disciplina <strong>Segurança de Sistemas (JCRSEGS)</strong> — Prof. Tardelli Stekel</p>
+        <p style="margin-top:0.25rem; font-size:0.75rem;">Implementação pura sem bibliotecas criptográficas de terceiros • Código Autoral</p>
+    </footer>
+
+    <!-- Scripts dos Módulos Criptográficos Autorais -->
+    <script src="js/presets.js"></script>
+    <script src="js/crypto/otp.js"></script>
+    <script src="js/crypto/caesar.js"></script>
+    <script src="js/crypto/vigenere.js"></script>
+    <script src="js/crypto/hill.js"></script>
+    <script src="js/crypto/cryptanalysis.js"></script>
+    <!-- Controlador Principal da Aplicação -->
+    <script src="js/app.js"></script>
+</body>
+</html>
